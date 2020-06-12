@@ -46,6 +46,21 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:${JAVA_HOME}/
 
 验证：adb devices
 
+解决：adb不兼容
+
+sudo add-apt-repository ppa:nilarimogard/webupd8
+
+sudo apt-get update
+
+sudo apt-get install android-tools-adb android-tools-fastboot
+
+cp /usr/bin/adb /root/Sdk/platform-tools/adb
+
+cp /usr/bin/fastboot /root/Sdk/platform-tools/fastboot
+
+sudo apt-get install ia32-libs
+
+
 
 安装appium
 
