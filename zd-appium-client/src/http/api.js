@@ -1,7 +1,7 @@
 import SocketClient from 'socket.io-client';
 import axios from 'axios';
 
-const SERVER_IP = '192.168.3.82';
+let SERVER_IP = '192.168.1.249';
 
 const URL_APPIUM_SERVER = `http://${SERVER_IP}:7001`;
 const URL_LAMBDA_SERVER = `http://${SERVER_IP}:7002`;
@@ -33,7 +33,11 @@ const appiumLogListeners = [];
 const appiumSessionListeners = [];
 const appiumServerListeners = [];
 
-export function connection() {
+export function connection(zdboxIP) {
+    SERVER_IP = zdboxIP;
+
+    console.log(URL_APPIUM_SERVER)
+
     appiumClient = new SocketClient(URL_APPIUM_SERVER);
     appiumClient.on('connect_error', (error) => {
         for (const appiumClientListener of appiumClientListeners) {
@@ -114,6 +118,12 @@ export function connection() {
             }
         }
     })
+}
+
+export function disconnection() {
+    SERVER_IP = '';
+    appiumClient.disconnect();
+    appiumClient = null;
 }
 
 export function addAppiumClientListener(listener) {

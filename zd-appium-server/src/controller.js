@@ -25,9 +25,8 @@ function startServer(server) {
         const name = server.name;
         const port = server.port;
         const script = path.join(__dirname, name, 'index.js');
-        const cmd = `pm2 start ${script} --name ${name} -- ${port}`;
-        const buf = execSync(`pm2 start ${script} --name ${name} -- ${port}`);
-        console.log(cmd, buf.toString());
+        execSync(`pm2 start ${script} --name ${name} -- ${port}`);
+        execSync('pm2 save');
     }
 }
 

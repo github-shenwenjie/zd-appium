@@ -7,6 +7,7 @@ import Elements from './view/elements';
 import Editor from './view/editor';
 import {
     connection,
+    disconnection,
     startAppiumServer,
     stopAppiumServer,
     appiumServerStatus,
@@ -34,6 +35,7 @@ class App extends Component {
         this.elements_view = null;
         this.state = {
             isCreateSessionReady: true,
+            isConnected: false,
             isKillSessionReady: true,
             status: 'stop',
             activity: '',
@@ -42,123 +44,17 @@ class App extends Component {
             package: '',
             packages: [],
             ownerIP: '',
-            isRunKeepSessionLoop: false
+            isRunKeepSessionLoop: false,
+            zdboxIP: '192.168.1.249'
         }
     }
 
-    componentDidMount() {
-        this.handleGetAppiumServerStatus();
-        this.handleGetAndroidDevices();
-        this.handleGetAndroidModel();
-        this.handleGetAndroidPlatform();
-        this.handleGetAndroidPackages();
-        addAppiumClientListener((status, args) => {
-            if (status == 'uid') {
-                this.userId = args;
-                console.log('socket client uid = ' + this.userId);
-            } else if (status == 'error') {
-                this.userId = null;
-                if (this.state.isRunKeepSessionLoop) {
-                    killKeepAlive();
-                    this.setState({
-                        isRunKeepSessionLoop: false
-                    })
-                }
-                this.setState({
-                    status: 'stop',
-                    isCreateSessionReady: false,
-                    isKillSessionReady: false,
-                    ownerIP: ''
-                });
-                console.log('socket client error.');
-                message.error('socket client error.');
-            } else if (status == 'timeout') {
-                this.userId = null;
-                if (this.state.isRunKeepSessionLoop) {
-                    killKeepAlive();
-                    this.setState({
-                        isRunKeepSessionLoop: false
-                    })
-                }
-                this.setState({
-                    status: 'stop',
-                    isCreateSessionReady: false,
-                    isKillSessionReady: false,
-                    ownerIP: ''
-                });
-                console.log('socket client timeout.');
-                message.error('socket client timeout.');
-            } else if (status == 'reconnect') {
-                this.handleGetAppiumServerStatus();
-                console.log('socket client reconnect.');
-                message.success('socket client reconnect.');
-            }
-        });
-        addAppiumServerLister((status) => {
-            if (status == 'start') {
-                this.setState({
-                    status: 'start',
-                    isCreateSessionReady: true,
-                    isKillSessionReady: false
-                });
-                console.log('appium server start.')
-            } else if (status == 'stop') {
-                this.setState({
-                    status: 'stop',
-                });
-                console.log('appium server stop.')
-            }
-        });
-        addSessionListener((status, args) => {
-            if (status == 'new') {
-                const ownerIP = args && args.hasOwnProperty('ip') ? args.ip : 'unknown';
-                this.setState({
-                    isCreateSessionReady: false,
-                    isKillSessionReady: true,
-                    ownerIP
-                })
-                console.log(`${ownerIP} create session.`)
-            } else if (status == 'kill') {
-                const killerIP = args && args.hasOwnProperty('ip') ? args.ip : 'unknown';
-                if (this.sessionId) {
-                    this.sessionId = null;
-                }
-                if (this.state.isRunKeepSessionLoop) {
-                    killKeepAlive();
-                    this.setState({
-                        isRunKeepSessionLoop: false
-                    })
-                }
-                this.setState({
-                    isCreateSessionReady: true,
-                    isKillSessionReady: false,
-                    ownerIP: ''
-                })
-                console.log(`${killerIP} kill the session .`)
-            } else if (status == 'invalid') {
-                if (this.sessionId) {
-                    this.sessionId = null;
-                }
-                if (this.state.isRunKeepSessionLoop) {
-                    killKeepAlive();
-                    this.setState({
-                        isRunKeepSessionLoop: false
-                    })
-                }
-                this.setState({
-                    isCreateSessionReady: true,
-                    isKillSessionReady: false,
-                    ownerIP: ''
-                })
-                console.log(`session is invalid.`)
-            }
-        });
-        connection();
-    }
+    // componentDidMount() {
+    // }
 
     render() {
         return (
-            <div style={{ width: '100%'  }}>
+            <div style={{ width: '100%' }}>
                 <div style={{ width: '100%', height: '30px', margin: '10px' }}>
                     <Radio.Group value={this.state.status} onChange={this.handleChangeAppiumServer.bind(this)}>
                         <Radio.Button style={{ width: '155px' }} value="start">Start Appium</Radio.Button>
@@ -181,8 +77,9 @@ class App extends Component {
                     {
                         this.state.ownerIP ? <span style={{ marginLeft: '10px', color: 'blue' }} >{`${this.state.ownerIP} is Running`} </span> : null
                     }
+
                 </div>
-                <div style={{ width: '100%', height: '30px', margin: '10px'}}>
+                <div style={{ width: '100%', height: '30px', margin: '10px' }}>
                     <Radio.Group value={this.state.isRunKeepSessionLoop ? 'keep' : 'kill'} onChange={this.handleChangeKeepSessionLoop.bind(this)}>
                         <Radio.Button style={{ width: '155px' }} value="keep"> Keep Session Alive</Radio.Button>
                         <Radio.Button style={{ width: '155px' }} value="kill">Kill Session Alive</Radio.Button>
@@ -193,6 +90,8 @@ class App extends Component {
                     <Button style={{ width: '150px', height: '30px', marginLeft: '10px' }} onClick={this.handleGetAndroidModel.bind(this)}>Device Model</Button>
                     <Button style={{ width: '150px', height: '30px', marginLeft: '10px' }} onClick={this.handleGetAndroidPackages.bind(this)} >Android Packages </Button>
                     <Button style={{ width: '150px', height: '30px', marginLeft: '10px' }} onClick={this.handleGetAndroidActivity.bind(this)} >Android Activity </Button>
+                    <Input style={{ width: '150px', height: '30px', marginLeft: '10px' }} placeholder="ZD Box IP" value={this.state.zdboxIP} onChange={this.handleChangeZDBoxIP.bind(this)} />
+                    <Button style={{ width: '150px', height: '30px', marginLeft: '10px' }} onClick={this.handleConnectZDBox.bind(this)} >{this.state.isConnected ? 'Disconnect' : 'Connect'}</Button>
                 </div>
                 <div style={{ width: '100%', display: 'flex' }}>
                     <div>
@@ -413,6 +312,134 @@ class App extends Component {
             console.log(JSON.stringify(result));
         }).catch(error => {
             message.error(error.message);
+        })
+    }
+
+    handleConnectZDBox() {
+        if (this.state.isConnected) {
+            disconnection();
+            this.setState({
+                isConnected: false
+            })
+        } else {
+            if (this.state.zdboxIP) {
+                this.handleGetAppiumServerStatus();
+                this.handleGetAndroidDevices();
+                this.handleGetAndroidModel();
+                this.handleGetAndroidPlatform();
+                this.handleGetAndroidPackages();
+                addAppiumClientListener((status, args) => {
+                    if (status == 'uid') {
+                        this.userId = args;
+                        console.log('socket client uid = ' + this.userId);
+                    } else if (status == 'error') {
+                        this.userId = null;
+                        if (this.state.isRunKeepSessionLoop) {
+                            killKeepAlive();
+                            this.setState({
+                                isRunKeepSessionLoop: false
+                            })
+                        }
+                        this.setState({
+                            status: 'stop',
+                            isCreateSessionReady: false,
+                            isKillSessionReady: false,
+                            ownerIP: ''
+                        });
+                        console.log('socket client error.');
+                        message.error('socket client error.');
+                    } else if (status == 'timeout') {
+                        this.userId = null;
+                        if (this.state.isRunKeepSessionLoop) {
+                            killKeepAlive();
+                            this.setState({
+                                isRunKeepSessionLoop: false
+                            })
+                        }
+                        this.setState({
+                            status: 'stop',
+                            isCreateSessionReady: false,
+                            isKillSessionReady: false,
+                            ownerIP: ''
+                        });
+                        console.log('socket client timeout.');
+                        message.error('socket client timeout.');
+                    } else if (status == 'reconnect') {
+                        this.handleGetAppiumServerStatus();
+                        console.log('socket client reconnect.');
+                        message.success('socket client reconnect.');
+                    }
+                });
+                addAppiumServerLister((status) => {
+                    if (status == 'start') {
+                        this.setState({
+                            status: 'start',
+                            isCreateSessionReady: true,
+                            isKillSessionReady: false
+                        });
+                        console.log('appium server start.')
+                    } else if (status == 'stop') {
+                        this.setState({
+                            status: 'stop',
+                        });
+                        console.log('appium server stop.')
+                    }
+                });
+                addSessionListener((status, args) => {
+                    if (status == 'new') {
+                        const ownerIP = args && args.hasOwnProperty('ip') ? args.ip : 'unknown';
+                        this.setState({
+                            isCreateSessionReady: false,
+                            isKillSessionReady: true,
+                            ownerIP
+                        })
+                        console.log(`${ownerIP} create session.`)
+                    } else if (status == 'kill') {
+                        const killerIP = args && args.hasOwnProperty('ip') ? args.ip : 'unknown';
+                        if (this.sessionId) {
+                            this.sessionId = null;
+                        }
+                        if (this.state.isRunKeepSessionLoop) {
+                            killKeepAlive();
+                            this.setState({
+                                isRunKeepSessionLoop: false
+                            })
+                        }
+                        this.setState({
+                            isCreateSessionReady: true,
+                            isKillSessionReady: false,
+                            ownerIP: ''
+                        })
+                        console.log(`${killerIP} kill the session .`)
+                    } else if (status == 'invalid') {
+                        if (this.sessionId) {
+                            this.sessionId = null;
+                        }
+                        if (this.state.isRunKeepSessionLoop) {
+                            killKeepAlive();
+                            this.setState({
+                                isRunKeepSessionLoop: false
+                            })
+                        }
+                        this.setState({
+                            isCreateSessionReady: true,
+                            isKillSessionReady: false,
+                            ownerIP: ''
+                        })
+                        console.log(`session is invalid.`)
+                    }
+                });
+                connection(this.state.zdboxIP);
+                this.setState({
+                    isConnected: true
+                })
+            }
+        }
+    }
+
+    handleChangeZDBoxIP(e) {
+        this.setState({
+            zdboxIP: e.target.value
         })
     }
 
