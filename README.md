@@ -49,6 +49,8 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:${JAVA_HOME}/
 
 安装appium
 
+npm install appium-chromedriver@4.21.0 --ignore-scripts
+
 npm install -g appium
 
 npm install -g appium-doctor
