@@ -45,7 +45,7 @@ class App extends Component {
             packages: [],
             ownerIP: '',
             isRunKeepSessionLoop: false,
-            zdboxIP: '192.168.1.249'
+            zdboxIP: '192.168.1.112'
         }
     }
 
@@ -323,11 +323,7 @@ class App extends Component {
             })
         } else {
             if (this.state.zdboxIP) {
-                this.handleGetAppiumServerStatus();
-                this.handleGetAndroidDevices();
-                this.handleGetAndroidModel();
-                this.handleGetAndroidPlatform();
-                this.handleGetAndroidPackages();
+                
                 addAppiumClientListener((status, args) => {
                     if (status == 'uid') {
                         this.userId = args;
@@ -430,6 +426,11 @@ class App extends Component {
                     }
                 });
                 connection(this.state.zdboxIP);
+                this.handleGetAppiumServerStatus();
+                this.handleGetAndroidDevices();
+                this.handleGetAndroidModel();
+                this.handleGetAndroidPlatform();
+                this.handleGetAndroidPackages();
                 this.setState({
                     isConnected: true
                 })

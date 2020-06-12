@@ -1,31 +1,26 @@
 import SocketClient from 'socket.io-client';
 import axios from 'axios';
 
-let SERVER_IP = '192.168.1.249';
-
-const URL_APPIUM_SERVER = `http://${SERVER_IP}:7001`;
-const URL_LAMBDA_SERVER = `http://${SERVER_IP}:7002`;
-const URL_ANDROID_SERVER = `http://${SERVER_IP}:7004`;
-
-const URL_APPIUM_STATUS = URL_APPIUM_SERVER + '/appiumServerStatus';
-const URL_APPIUM_START = URL_APPIUM_SERVER + '/connectStartServer';
-const URL_APPIUM_STOP = URL_APPIUM_SERVER + '/connectStopServer';
-const URL_APPIUM_LOG = URL_APPIUM_SERVER + '/log';
-const URL_APPIUM_CREATE_SESSION = URL_APPIUM_SERVER + '/createSession';
-const URL_APPIUM_KILL_SESSION = URL_APPIUM_SERVER + '/killSession';
-const URL_APPIUM_SOURCE = URL_APPIUM_SERVER + '/source';
-const URL_APPIUM_SCREENSHOT = URL_APPIUM_SERVER + '/screenshot';
-const URL_APPIUM_WINDOW = URL_APPIUM_SERVER + '/windowSize';
-const URL_APPIUM_TAP = URL_APPIUM_SERVER + '/tap';
-const URL_APPIUM_SWIPE = URL_APPIUM_SERVER + '/swipe';
-
-const URL_ANDROID_DEVICE = URL_ANDROID_SERVER + '/devcies';
-const URL_ANDROID_PLATFORM = URL_ANDROID_SERVER + '/platform';
-const URL_ANDROID_MODEL = URL_ANDROID_SERVER + '/model';
-const URL_ANDROID_PACKAGE = URL_ANDROID_SERVER + '/packages';
-const URL_ANDROID_ACTIVITY = URL_ANDROID_SERVER + '/activity';
-
-const URL_LAMBDA_SCRIPT = URL_LAMBDA_SERVER + '/script';
+let URL_APPIUM_SERVER;
+let URL_LAMBDA_SERVER;
+let URL_ANDROID_SERVER;
+let URL_APPIUM_STATUS;
+let URL_APPIUM_START;
+let URL_APPIUM_STOP;
+let URL_APPIUM_LOG;
+let URL_APPIUM_CREATE_SESSION;
+let URL_APPIUM_KILL_SESSION;
+let URL_APPIUM_SOURCE;
+let URL_APPIUM_SCREENSHOT;
+let URL_APPIUM_WINDOW;
+let URL_APPIUM_TAP;
+let URL_APPIUM_SWIPE;
+let URL_ANDROID_DEVICE;
+let URL_ANDROID_PLATFORM;
+let URL_ANDROID_MODEL;
+let URL_ANDROID_PACKAGE;
+let URL_ANDROID_ACTIVITY;
+let URL_LAMBDA_SCRIPT;
 
 let appiumClient = null;
 const appiumClientListeners = [];
@@ -33,11 +28,31 @@ const appiumLogListeners = [];
 const appiumSessionListeners = [];
 const appiumServerListeners = [];
 
-export function connection(zdboxIP) {
-    SERVER_IP = zdboxIP;
+function initURL(SERVER_IP) {
+    URL_APPIUM_SERVER = `http://${SERVER_IP}:7001`;
+    URL_LAMBDA_SERVER = `http://${SERVER_IP}:7002`;
+    URL_ANDROID_SERVER = `http://${SERVER_IP}:7004`;
+    URL_APPIUM_STATUS = URL_APPIUM_SERVER + '/appiumServerStatus';
+    URL_APPIUM_START = URL_APPIUM_SERVER + '/connectStartServer';
+    URL_APPIUM_STOP = URL_APPIUM_SERVER + '/connectStopServer';
+    URL_APPIUM_LOG = URL_APPIUM_SERVER + '/log';
+    URL_APPIUM_CREATE_SESSION = URL_APPIUM_SERVER + '/createSession';
+    URL_APPIUM_KILL_SESSION = URL_APPIUM_SERVER + '/killSession';
+    URL_APPIUM_SOURCE = URL_APPIUM_SERVER + '/source';
+    URL_APPIUM_SCREENSHOT = URL_APPIUM_SERVER + '/screenshot';
+    URL_APPIUM_WINDOW = URL_APPIUM_SERVER + '/windowSize';
+    URL_APPIUM_TAP = URL_APPIUM_SERVER + '/tap';
+    URL_APPIUM_SWIPE = URL_APPIUM_SERVER + '/swipe';
+    URL_ANDROID_DEVICE = URL_ANDROID_SERVER + '/devcies';
+    URL_ANDROID_PLATFORM = URL_ANDROID_SERVER + '/platform';
+    URL_ANDROID_MODEL = URL_ANDROID_SERVER + '/model';
+    URL_ANDROID_PACKAGE = URL_ANDROID_SERVER + '/packages';
+    URL_ANDROID_ACTIVITY = URL_ANDROID_SERVER + '/activity';
+    URL_LAMBDA_SCRIPT = URL_LAMBDA_SERVER + '/script';
+}
 
-    console.log(URL_APPIUM_SERVER)
-
+export function connection(SERVER_IP) {
+    initURL(SERVER_IP);
     appiumClient = new SocketClient(URL_APPIUM_SERVER);
     appiumClient.on('connect_error', (error) => {
         for (const appiumClientListener of appiumClientListeners) {
@@ -121,7 +136,6 @@ export function connection(zdboxIP) {
 }
 
 export function disconnection() {
-    SERVER_IP = '';
     appiumClient.disconnect();
     appiumClient = null;
 }
