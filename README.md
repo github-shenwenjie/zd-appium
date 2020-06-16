@@ -1,71 +1,50 @@
-# ubuntu下appium环境搭建
+# zd-appium
 
-安装JAVA
+1. install java
 
-apt-get update
+   sudo apt-get update
 
-apt-get install openjdk-8-jre openjdk-8-jdk
+   sudo apt-get install openjdk-8-jdk
 
-java -version
+   查看java路径： sudo update-alternatives --config java
 
-设置环境变量：sudo gedit /etc/profile
+   编辑 nano /etc/profile
 
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+   export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-armhf/jre/bin/java"
+    
+   export PATH=${JAVA_HOME}/bin:$PATH
 
-export JRE_HOME=${JAVA_HOME}/jre 
+   生效 source /etc/profile
 
-export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib 
+2. install node
 
-export PATH=${JAVA_HOME}/bin:$PATH
+   apt install npm
 
-修改生效：source /etc/profile
+   npm install -g n
 
-验证：echo $JAVA_HOME
+   n stable
 
+3. install android sdk
 
-安装NODEJS
+   export ANDROID_HOME="/root/android-sdk-linux"
+   
+   export ANDROID_SWT="/root/android-sdk-linux/tools/lib/x86_64/"
 
-npm install -g n
+   export PATH="${JAVA_HOME}/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
+   
+   PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools"
 
-n stable
+   sudo add-apt-repository ppa:nilarimogard/webupd8
+  
+   sudo apt-get update
+  
+   sudo apt-get install android-tools-adb android-tools-fastboot
 
+   cp /usr/bin/adb /root/android-sdk-linux/platform-tools/adb
 
-安装AndroidSDK
+3. install appium
 
-下载https://developer.android.com/studio
+   npm install -g appium --unsafe-perm=true --allow-root
 
-android-studio/bin/ 目录，并执行 studio.sh
+   npm install -g appium-doctor
 
-设置环境变量：sudo gedit /etc/profile
-
-export ANDROID_HOME=/home/shenwenjie/Downloads/Android/Sdk
-
-export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:${JAVA_HOME}/bin
-
-修改生效：source /etc/profile
-
-验证：adb devices
-
-解决：adb不兼容
-
-sudo add-apt-repository ppa:nilarimogard/webupd8
-
-sudo apt-get update
-
-sudo apt-get install android-tools-adb android-tools-fastboot
-
-cp /usr/bin/adb /root/Sdk/platform-tools/adb
-
-cp /usr/bin/fastboot /root/Sdk/platform-tools/fastboot
-
-sudo apt-get install ia32-libs
-
-
-
-安装appium
-
-npm install -g appium --chromedriver-skip-install
-
-npm install -g appium-doctor
-
-验证环境：appium-doctor

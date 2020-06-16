@@ -283,7 +283,10 @@ async function click(sessionId, { resource_id, content_desc, class_name, xpath, 
     if (appiumHandler && checkSession(sessionId) && (resource_id || content_desc || class_name || xpath)) {
         let element = null;
         if (resource_id) {
-            element = isWaitFor ? await waitForElementById(resource_id) : await elementById(sessionId, resource_id);
+            const elements = isWaitFor ? await waitForElementsById(resource_id) : await elementsById(sessionId, resource_id);
+            if (elements) {
+                element = elements[index];
+            }
         } else if (content_desc) {
             const elements = isWaitFor ? await waitForElementsByAccessibilityId(content_desc) : await elementsByAccessibilityId(sessionId, content_desc);
             if (elements) {
@@ -312,7 +315,10 @@ async function sendKeys(sessionId, { resource_id, content_desc, class_name, xpat
     if (appiumHandler && checkSession(sessionId) && (resource_id || content_desc || class_name || xpath) && keys) {
         let element = null;
         if (resource_id) {
-            element = isWaitFor ? await waitForElementById(resource_id) : await elementById(sessionId, resource_id);
+            const elements = isWaitFor ? await waitForElementsById(resource_id) : await elementsById(sessionId, resource_id);
+            if (elements) {
+                element = elements[index];
+            }
         } else if (content_desc) {
             const elements = isWaitFor ? await waitForElementsByAccessibilityId(content_desc) : await elementsByAccessibilityId(sessionId, content_desc);
             if (elements) {
@@ -343,7 +349,10 @@ async function getText(sessionId, { resource_id, content_desc, class_name, xpath
     if (appiumHandler && checkSession(sessionId) && (resource_id || content_desc || class_name || xpath)) {
         let element = null;
         if (resource_id) {
-            element = isWaitFor ? await waitForElementById(resource_id) : await elementById(sessionId, resource_id);
+            const elements = isWaitFor ? await waitForElementsById(resource_id) : await elementsById(sessionId, resource_id);
+            if (elements) {
+                element = elements[index];
+            }
         } else if (content_desc) {
             const elements = isWaitFor ? await waitForElementsByAccessibilityId(content_desc) : await elementsByAccessibilityId(sessionId, content_desc);
             if (elements) {
@@ -367,20 +376,36 @@ async function getText(sessionId, { resource_id, content_desc, class_name, xpath
     return text;
 }
 
-async function elementById(sessionId, id) {
-    let element = null;
+// async function elementById(sessionId, id) {
+//     let element = null;
+//     if (appiumHandler && checkSession(sessionId)) {
+//         element = await appiumHandler.elementById(id);
+//     }
+//     return element;
+// }
+
+async function elementsById(sessionId, id) {
+    let elements = null;
     if (appiumHandler && checkSession(sessionId)) {
-        element = await appiumHandler.elementById(id);
+        elements = await appiumHandler.elementsById(id);
     }
-    return element;
+    return elements;
 }
 
-async function waitForElementById(sessionId, id) {
-    let element = null;
+// async function waitForElementById(sessionId, id) {
+//     let element = null;
+//     if (appiumHandler && checkSession(sessionId)) {
+//         element = await appiumHandler.waitForElementById(id);
+//     }
+//     return element;
+// }
+
+async function waitForElementsById(sessionId, id) {
+    let elements = null;
     if (appiumHandler && checkSession(sessionId)) {
-        element = await appiumHandler.waitForElementById(id);
+        elements = await appiumHandler.waitForElementsById(id);
     }
-    return element;
+    return elements;
 }
 
 async function elementsByAccessibilityId(sessionId, content_desc) {

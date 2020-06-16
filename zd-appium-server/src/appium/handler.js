@@ -107,8 +107,16 @@ class AppiumHandler {
         return await this.driver.elementById(id);
     }
 
+    async elementsById(id) {
+        return await this.driver.elementsById(id);
+    }
+
     async waitForElementById(id) {
         return await this.driver.waitForElementById(id);
+    }
+
+    async waitForElementsById(id) {
+        return await this.driver.waitForElementsById(id);
     }
 
     async elementsByAccessibilityId(content_desc) {
